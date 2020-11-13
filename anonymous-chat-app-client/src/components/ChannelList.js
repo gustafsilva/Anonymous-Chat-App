@@ -1,11 +1,14 @@
 import React from "react";
+import { connect } from "react-redux";
 
-function ChannelList({ channels, changeChannel }) {
+import { changeChannel } from "../store/actions";
+
+function ChannelList({ channels, selectChannel, changeChannel }) {
     const channelListRendered = channels.map(channel => (
         <div
-            className="chat_list"
+            className={`chat_list ${selectChannel.title === channel.title ? 'chat_active': '' }`}
             key={channel.value}
-            onClick={() => changeChannel(channel)}
+            onClick={() => changeChannel(channel) }
         >
             <div className="chat_people">
                 <div className="chat_ib">
@@ -30,4 +33,14 @@ function ChannelList({ channels, changeChannel }) {
     );
 }
 
-export default ChannelList;
+
+const mapStateToProps = state => ({
+    selectChannel: state.channel,
+});
+
+const mapDispatchToProps = {
+    changeChannel,
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ChannelList);
+

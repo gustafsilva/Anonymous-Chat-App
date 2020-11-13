@@ -1,4 +1,5 @@
 import React from "react";
+import { connect } from "react-redux";
 
 import Message from "./Message";
 
@@ -27,4 +28,8 @@ function Chat({ messages }) {
     );
 }
 
-export default Chat;
+const mapStateToProps = state => ({
+   messages: state.messages,
+});
+
+export default connect(mapStateToProps)(Chat);

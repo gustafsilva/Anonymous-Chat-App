@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
-import Centrifuge from "centrifuge";
-import SockJS from 'sockjs-client'
-import Jwt from 'jsonwebtoken';
-
+import { connect } from "react-redux";
 
 import './App.css';
 
 import ChannelList from "./components/ChannelList";
 import Chat from "./components/Chat";
+import { addMessage, resetMessages } from "./store/actions";
 
 const CHANNELS = [
     {
@@ -27,23 +25,23 @@ const CHANNELS = [
     },
 ];
 
-function App({ centrifuge }) {
-    const [messages, setMessages] = useState([]);
-    const [selectChannel, setSelectChannel] = useState(CHANNELS[0]);
-
-    console.log('MESSAGES: ', messages);
+function App(props) {
+    const {
+        centrifuge,
+        addMessage,
+        resetMessages,
+        selectChannel,
+    } = props;
 
     useEffect(() => {
-        // Subscribe to a channel just for testing.
+        // Subscribe to a channel.
         centrifuge.subscribe(selectChannel.value, ({ data }) => {
-            console.log('DATA RECEIVE: ', data);
             const message = {
                 ...data,
                 isReceived: true,
             }
 
-            const newMessages = messages.concat([message]);
-            setMessages(newMessages);
+            addMessage(message);
         });
         console.log('Subscribe channel', selectChannel.title)
 
@@ -51,7 +49,7 @@ function App({ centrifuge }) {
         console.log('Connect channel', selectChannel.title)
 
         return () => {
-            setMessages([]);
+            resetMessages();
 
             centrifuge.disconnect();
             console.log('Disconnect channel', selectChannel.title)
@@ -60,14 +58,11 @@ function App({ centrifuge }) {
 
     return (
         <div className="container">
-            <h3 className=" text-center">Anonymous Chat App</h3>
+            <h3 className=" text-center">Anonymous Chat App #{selectChannel.title}</h3>
             <div className="messaging">
                 <div className="inbox_msg">
-                    <ChannelList
-                        channels={CHANNELS}
-                        changeChannel={setSelectChannel}
-                    />
-                    <Chat messages={messages} />
+                    <ChannelList channels={CHANNELS} />
+                    <Chat />
                 </div>
             </div>
 
@@ -79,4 +74,13 @@ function App({ centrifuge }) {
     );
 }
 
-export default App;
+const mapStateToProps = state => ({
+    selectChannel: state.channel,
+});
+
+const mapDispatchToProps = {
+    addMessage,
+    resetMessages,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

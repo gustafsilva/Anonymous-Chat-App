@@ -1,10 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
+import { Provider} from "react-redux";
 import reportWebVitals from './reportWebVitals';
 import Jwt from "jsonwebtoken";
 import Centrifuge from "centrifuge";
 import SockJS from "sockjs-client";
+
+import App from './App';
+import store from "./store";
 
 // Configure Centrifuge
 const token = Jwt.sign({ sub: 'dalongdemo'}, '05f0842d-c302-4036-a19f-6ac263b9f620');
@@ -14,9 +17,11 @@ const centrifuge = new Centrifuge("http://localhost:8000/connection/sockjs", {
 centrifuge.setToken(token)
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App centrifuge={centrifuge} />
-  </React.StrictMode>,
+    <Provider store={store}>
+        <React.StrictMode>
+            <App centrifuge={centrifuge} />
+        </React.StrictMode>
+    </Provider>,
   document.getElementById('root')
 );
 
