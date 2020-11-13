@@ -18,7 +18,20 @@ const CHANNELS = [
     },
 ];
 
-function channelReducer(channel=CHANNELS[0], action) {
+function contextUserReducer(context=null, action) {
+    switch (action.type) {
+        case 'SET_CONTEXT':
+            return action.payload;
+        default:
+            return context;
+    }
+}
+
+function channelsReducer(channels=CHANNELS) {
+    return channels;
+}
+
+function selectChannelsReducer(channel=CHANNELS[0], action) {
     switch (action.type) {
         case 'CHANGE_CHANNEL':
             return action.payload;
@@ -39,6 +52,8 @@ function messagesReducer(messages=[], action) {
 }
 
 export default combineReducers({
-    channel: channelReducer,
+    contextUser: contextUserReducer,
+    channels: channelsReducer,
+    selectChannel: selectChannelsReducer,
     messages: messagesReducer,
 });

@@ -35,7 +35,8 @@ function ChannelList({ channels, selectChannel, changeChannel }) {
 
 
 const mapStateToProps = state => ({
-    selectChannel: state.channel,
+    selectChannel: state.selectChannel,
+    channels: state.channels,
 });
 
 const mapDispatchToProps = {

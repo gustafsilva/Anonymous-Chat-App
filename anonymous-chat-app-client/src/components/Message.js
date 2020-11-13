@@ -7,7 +7,7 @@ function Message({ text, isMessageReceived }) {
                 <div className="received_msg">
                     <div className="received_withd_msg">
                         <p>{text}</p>
-                        <span className="time_date"> 11:01 AM    |    June 9</span>
+                        <span className="time_date"></span>
                     </div>
                 </div>
             </div>
@@ -17,7 +17,7 @@ function Message({ text, isMessageReceived }) {
             <div className="outgoing_msg">
                 <div className="sent_msg">
                     <p>{text}</p>
-                    <span className="time_date"> 11:01 AM    |    June 9</span>
+                    <span className="time_date"></span>
                 </div>
             </div>
         );

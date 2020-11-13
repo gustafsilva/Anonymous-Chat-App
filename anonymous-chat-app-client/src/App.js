@@ -1,29 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { connect } from "react-redux";
 
 import './App.css';
 
 import ChannelList from "./components/ChannelList";
 import Chat from "./components/Chat";
-import { addMessage, resetMessages } from "./store/actions";
-
-const CHANNELS = [
-    {
-        title: 'General',
-        description: 'Here you can talk about general subjects, feel free!',
-        value: 'general',
-    },
-    {
-        title: 'Cats',
-        description: 'Here you can only talk about cats, aren\'t cats adorable?',
-        value: 'cats',
-    },
-    {
-        title: 'Random',
-        description: 'Here you can talk about anything, open the imagination.',
-        value: 'random',
-    },
-];
+import { addMessage, resetMessages, setContextUser } from "./store/actions";
 
 function App(props) {
     const {
@@ -31,23 +13,33 @@ function App(props) {
         addMessage,
         resetMessages,
         selectChannel,
+        setContextUser,
     } = props;
+
+    const sendMessage = message => {
+        centrifuge.publish(selectChannel.value, {"data": { text: message.text} }).then(function(res) {
+            console.log('successfully published');
+            //addMessage(message);
+        }, function(err) {
+            console.log('publish error', err);
+        })
+    }
 
     useEffect(() => {
         // Subscribe to a channel.
-        centrifuge.subscribe(selectChannel.value, ({ data }) => {
-            const message = {
-                ...data,
-                isReceived: true,
-            }
-
-            addMessage(message);
+        centrifuge.subscribe(selectChannel.value, response => {
+            console.log('New message: ', response);
+            addMessage(response);
         });
         console.log('Subscribe channel', selectChannel.title)
 
         centrifuge.connect();
-        console.log('Connect channel', selectChannel.title)
 
+        centrifuge.on('connect', newContext => {
+            setContextUser(newContext);
+        });
+
+        console.log('Connect channel', selectChannel.title)
         return () => {
             resetMessages();
 
@@ -61,8 +53,8 @@ function App(props) {
             <h3 className=" text-center">Anonymous Chat App #{selectChannel.title}</h3>
             <div className="messaging">
                 <div className="inbox_msg">
-                    <ChannelList channels={CHANNELS} />
-                    <Chat />
+                    <ChannelList />
+                    <Chat sendMessage={sendMessage}/>
                 </div>
             </div>
 
@@ -75,12 +67,13 @@ function App(props) {
 }
 
 const mapStateToProps = state => ({
-    selectChannel: state.channel,
+    selectChannel: state.selectChannel,
 });
 
 const mapDispatchToProps = {
     addMessage,
     resetMessages,
+    setContextUser,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
