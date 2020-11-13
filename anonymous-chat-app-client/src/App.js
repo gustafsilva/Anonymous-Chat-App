@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Centrifuge from "centrifuge";
 import SockJS from 'sockjs-client'
 import Jwt from 'jsonwebtoken';
@@ -28,30 +28,53 @@ const CHANNELS = [
 ];
 
 function App({ centrifuge }) {
+    const [messages, setMessages] = useState([]);
+    const [selectChannel, setSelectChannel] = useState(CHANNELS[0]);
+
+    console.log('MESSAGES: ', messages);
+
     useEffect(() => {
         // Subscribe to a channel just for testing.
-        centrifuge.subscribe("news", message => {
-            console.log(message);
+        centrifuge.subscribe(selectChannel.value, ({ data }) => {
+            console.log('DATA RECEIVE: ', data);
+            const message = {
+                ...data,
+                isReceived: true,
+            }
+
+            const newMessages = messages.concat([message]);
+            setMessages(newMessages);
         });
+        console.log('Subscribe channel', selectChannel.title)
+
         centrifuge.connect();
+        console.log('Connect channel', selectChannel.title)
 
         return () => {
+            setMessages([]);
+
             centrifuge.disconnect();
+            console.log('Disconnect channel', selectChannel.title)
         }
-    });
+    }, [selectChannel]);
 
     return (
         <div className="container">
             <h3 className=" text-center">Anonymous Chat App</h3>
             <div className="messaging">
                 <div className="inbox_msg">
-                    <ChannelList channels={CHANNELS} />
-                    <Chat />
+                    <ChannelList
+                        channels={CHANNELS}
+                        changeChannel={setSelectChannel}
+                    />
+                    <Chat messages={messages} />
                 </div>
             </div>
 
 
-            <p className="text-center top_spac"> Design by <a target="_blank" href="https://bootsnipp.com/snippets/1ea0N">Sunil Rajput</a></p>
+            <p className="text-center top_spac">
+                Design by <a target="_blank" href="https://bootsnipp.com/snippets/1ea0N">Sunil Rajput</a>
+            </p>
         </div>
     );
 }

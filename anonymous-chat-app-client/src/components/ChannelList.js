@@ -1,8 +1,12 @@
 import React from "react";
 
-function ChannelList({ channels }) {
+function ChannelList({ channels, changeChannel }) {
     const channelListRendered = channels.map(channel => (
-        <div className="chat_list" key={channel.value}>
+        <div
+            className="chat_list"
+            key={channel.value}
+            onClick={() => changeChannel(channel)}
+        >
             <div className="chat_people">
                 <div className="chat_ib">
                     <h5>{channel.title}</h5>
